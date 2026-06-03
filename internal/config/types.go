@@ -23,7 +23,7 @@ type ImageMetadata struct {
 	Content      string `yaml:"content"` // Name of the .tar.gz file (e.g. tks-image.tar.gz)
 	K8sVersion   string `yaml:"k8s_version"`
 	So           string `yaml:"so"`
-	Versao       string `yaml:"versao"`
+	Version       string `yaml:"version"`
 	Date         string `yaml:"date"`
 	Subarches    string `yaml:"subarches"`
 	BaseImage    string `yaml:"base_image"`

@@ -1,0 +1,25 @@
+boot_resources:
+  images:
+    - name: base-v1-31-13-20260507
+      md5sum: 746cf2d2b64afc856eb4d636fa98a3f2
+      sha256Hash: 7671ee154cae4d8850ba8b23d7026ea0f6651de368044b2ced7e2499def5b04d
+      architecture: amd64/generic
+      content: base-v1-31-13-20260507.tar.gz
+      k8s_version: v1-31-13
+      so: Ubuntu
+      version: 22.04.04
+      date: "2026/05/07"
+      subarches: generic
+      base_image: ubuntu/jammy
+
+    - name: base-v1-31-13-20260506
+      md5sum: a1b2c3d4e5f6789012345678abcdef01
+      sha256Hash: 7671ee154cae4d8850ba8b23d7026ea0f6651de368044b2ced7e2499def5b04d
+      architecture: amd64/generic
+      content: base-v1-31-13-20260506.tar.gz
+      k8s_version: v1-31-13
+      so: Ubuntu
+      version: 22.04.04
+      date: "2026/05/06"
+      subarches: generic
+      base_image: ubuntu/jammy
