@@ -1,0 +1,14 @@
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maas-image-syncronizer-config
+  namespace: maas
+data:
+  MAAS_URL: "http://maas.example.com:5240/MAAS"
+  IMAGE_DOWNLOAD_GCS_BUCKET: "maas-images-br"
+  IMAGE_DOWNLOAD_GCS_PREFIX: "ambiente-prod"
+  DEFAULT_IMAGE_PATH: "/tmp"
+  SYNC_TIMEOUT_MINUTES: "30"
+  POLLING_TIMEOUT_MINUTES: "10"
+---

@@ -1,5 +1,9 @@
 # Image URL to use all building/pushing image targets
 IMG ?= maas-image-syncronizer:latest
+# Version info injected at build time
+VERSION  ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+COMMIT   ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+LDFLAGS  := -ldflags "-X main.version=$(VERSION) -X main.commit=$(COMMIT)"
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION ?= $(shell go list -m -f "{{ .Version }}" k8s.io/api | awk -F'[v.]' '{printf "1.%d", $$3}')
 
@@ -69,11 +73,11 @@ lint-fix: golangci-lint ## Run golangci-lint linter and perform fixes
 
 .PHONY: build
 build: fmt vet
-	go build -o bin/maas-image-syncronizer ./cmd/
+	go build $(LDFLAGS) -o bin/maas-image-syncronizer ./cmd/image-syncer/...
 
 .PHONY: run
 run: fmt vet
-	go run ./cmd/
+	go run $(LDFLAGS) ./cmd/image-syncer/...
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.

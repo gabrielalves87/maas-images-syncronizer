@@ -3,20 +3,20 @@ package maas
 import (
 	"context"
 	"fmt"
+	"github.com/spectrocloud/maas-client-go/maasclient"
 	"image-syncer/internal/config"
 	"log/slog"
 	"os"
-	"time"
 	"path/filepath"
-	"github.com/spectrocloud/maas-client-go/maasclient"
+	"time"
 )
 
-func BootResources(ctx context.Context,maasURL, maasAPIKey string) (*[]maasclient.BootResource, error) {
+func BootResources(ctx context.Context, maasURL, maasAPIKey string) (*[]maasclient.BootResource, error) {
 
 	c := maasclient.NewAuthenticatedClientSet(maasURL, maasAPIKey)
 	resourcesboots, err := c.BootResources().List(ctx, nil)
 	if err != nil {
-		return nil,fmt.Errorf("failed to fetch boot resources: %w", err)
+		return nil, fmt.Errorf("failed to fetch boot resources: %w", err)
 	}
 	for _, resource := range resourcesboots {
 		slog.Info("MAAS Boot Resource", slog.String("name", resource.Name()), slog.Any("id", resource.ID()))
@@ -41,7 +41,7 @@ func UploadMaasImage(ctx context.Context, image *config.ImageMetadata, maasURL, 
 		slog.Int("size_bytes", fileSize),
 	)
 	builder := c.BootResources().Builder(
-		name,        
+		name,
 		architecture,
 		sha256Hash,
 		filePath,
@@ -50,7 +50,9 @@ func UploadMaasImage(ctx context.Context, image *config.ImageMetadata, maasURL, 
 	builder.WithTitle(image.Name).
 		WithFileType("tgz").
 		WithBaseImage(image.BaseImage)
-	slog.Info("Registering boot resource metadata in MAAS...")	
+
+	slog.Info("Registering boot resource metadata in MAAS...")
+
 	resource, err := builder.Create(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to register boot resource in MAAS: %w", err)

@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: maas-image-syncronizer
+  namespace: maas
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 2100
+      template:
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          containers:
+            - name: syncronizer
+              image: maas-image-syncronizer:latest
+              imagePullPolicy: Always
+              envFrom:
+                - configMapRef:
+                    name: maas-image-syncronizer-config
+              env:
+                - name: MAAS_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: maas-image-syncronizer-secrets
+                      key: maas-api-key
+                - name: IMAGE_DOWNLOAD_GCS_CREDENTIALS
+                  value: "/secrets/gcs-credentials.json"
+              volumeMounts:
+                - name: gcs-credentials
+                  mountPath: "/secrets"
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  # Imagens grandes precisam de memória suficiente para o io.Copy
+                  cpu: "500m"
+                  memory: "1024Mi"
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                readOnlyRootFilesystem: false
+          volumes:
+            - name: gcs-credentials
+              secret:
+                secretName: maas-image-syncronizer-secrets
+                items:
+                  - key: gcs-credentials.json
+                    path: gcs-credentials.json
+                    mode: 0400

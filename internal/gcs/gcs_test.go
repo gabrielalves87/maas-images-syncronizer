@@ -205,9 +205,9 @@ boot_resources:
 		)
 
 		var (
-			srv        *httptest.Server
-			cli        *storage.Client
-			tmpDir     string
+			srv         *httptest.Server
+			cli         *storage.Client
+			tmpDir      string
 			fakeContent = []byte("fake image tar.gz content for unit testing")
 		)
 

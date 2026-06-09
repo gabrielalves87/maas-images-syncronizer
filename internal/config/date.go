@@ -9,8 +9,8 @@ const dateLayout = "2006/01/02"
 
 func GetImageMostNew(image *MaasImageIndex) (*ImageMetadata, error) {
 	if image == nil {
-        return nil, fmt.Errorf("image index is nil")
-    }
+		return nil, fmt.Errorf("image index is nil")
+	}
 	var mostRecent *ImageMetadata
 	var mostRecentTime time.Time
 	for i := range image.BootResources.Images {
