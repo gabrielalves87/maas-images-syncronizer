@@ -25,27 +25,21 @@ func BootResources(ctx context.Context,maasURL, maasAPIKey string) (*[]maasclien
 }
 
 
-func UploadMaasImage(ctx context.Context,image *config.ImageMetadata, maasURL, maasAPIKey, defaultImagePath string) error {
+func UploadMaasImage(ctx context.Context, image *config.ImageMetadata, maasURL, maasAPIKey, defaultImagePath string, pollingTimeout time.Duration) error {
 	c := maasclient.NewAuthenticatedClientSet(maasURL, maasAPIKey)
-	
 	filePath := filepath.Join(defaultImagePath, image.Content)
-	
 	name := fmt.Sprintf("custom/%s",image.Content)
-	
 	architecture := image.Architecture
 	sha256Hash := image.SHA256Hash
-
 	fileInfo, err := os.Stat(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to check local file info: %w", err)
 	}
 	fileSize := int(fileInfo.Size())
-	
 	slog.Info("Starting MAAS boot resource upload process", 
 		slog.String("file", filePath), 
 		slog.Int("size_bytes", fileSize),
 	)
-	
 	builder := c.BootResources().Builder(
 		name,        
 		architecture,
@@ -53,19 +47,14 @@ func UploadMaasImage(ctx context.Context,image *config.ImageMetadata, maasURL, m
 		filePath,
 		fileSize,
 	)
-
 	builder.WithTitle(image.Name).
 		WithFileType("tgz").
 		WithBaseImage(image.BaseImage)
-
-	
-	slog.Info("Registering boot resource metadata in MAAS...")
-	
+	slog.Info("Registering boot resource metadata in MAAS...")	
 	resource, err := builder.Create(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to register boot resource in MAAS: %w", err)
 	}
-	
 	slog.Info("Resource registered successfully. Starting chunked upload...", slog.Int("resource_id", resource.ID()))
 	err = resource.Upload(ctx)
 	if err != nil {
@@ -73,8 +62,7 @@ func UploadMaasImage(ctx context.Context,image *config.ImageMetadata, maasURL, m
 	}
 	slog.Info("Boot resource upload completed successfully!", slog.Int("resource_id", resource.ID()))
 	slog.Info("Waiting for MAAS to synchronize and compile the image...")
-	
-	timeout := time.After(5 * time.Minute)
+	timeout := time.After(pollingTimeout)
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 	for {
